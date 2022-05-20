@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick&Healthly</title>
+    <style>
+      table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      
+      td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      
+      h1{
+        text-align: center;
+      }
+     
+      h2{
+        text-decoration: underline;
+      }
+      </style>
+  
+  </head>
+  <body>
+    <h1>Meals that you can make quick:</h1>
+    <h2>Meal with Maximum Protein: {{sugestion['max_proteins']}}</h2>
+    <h2>Meal with Minimum Carbon: {{sugestion['min_carbon']}}</h2>
+
+    <table>
+      <tr>
+        <tr>
+          <th>Image</th>
+          <th>Meal</th>
+          <th>Ingridients you have</th>
+          <th>Ingridients to buy</th>
+          <th>Nutrients</th>
+        </tr>
+        {% for item in items %}
+        <td><img src="{{item.picture}}" /></td>
+        <td>{{item.name}}</td>
+        <td>{%for present in item.present_ingredients %}
+          <ul>{{present}}</ul>
+          {% endfor %}
+        </td>
+        <td>{%for missing in item.missing_ingredients%}
+          <ul>{{missing}}</ul>
+          {% endfor %}
+        </td>
+        <td>Carbs:{{item.carbs}}g Proteins:{{item.proteins}}g Calories:{{item.calories}}kcal</td>
+      </tr>
+      {% endfor %}
+
+     
+    </table>
+  </body>
+</html>

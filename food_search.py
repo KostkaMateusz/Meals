@@ -1,9 +1,10 @@
-
-import requests
-
-from dataclasses import dataclass
-from dotenv import load_dotenv
 import os
+import requests
+from dotenv import load_dotenv
+from dataclasses import dataclass
+from html_menager import create_html
+from utils import make_meal_propositions
+
 load_dotenv()
 
 @dataclass
@@ -28,7 +29,7 @@ def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list=None):
     payload = {"includeIngredients": f"{include_ingredients_str}",
     "excludeIngredients":f"{exclude_ingredients_str}",
     "fillIngredients":True,"addRecipeNutrition":True,
-    "number":2,"sort":"min-missing-ingredients"}
+    "number":5,"sort":"min-missing-ingredients"}
 
     headers = {"x-api-key": os.getenv('APIKEY')}
 
@@ -39,7 +40,7 @@ def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list=None):
 
 
 
-def filter_data(recipies:list):
+def make_meals(recipies:list):
     list_of_object=[]
     
     for recipie_info in recipies['results']:
@@ -55,25 +56,20 @@ def filter_data(recipies:list):
         proteins=nutrients['Protein']
         calories=nutrients['Calories']
 
-        rec=Recipe(name,picture,present_ingredients,missing_ingredients,carbs,proteins,calories)
-      
-        list_of_object.append(rec)
+        recipe=Recipe(name,picture,present_ingredients,missing_ingredients,carbs,proteins,calories)
+        
+        list_of_object.append(recipe)
 
     return list_of_object
 
+
+
+
 recipies=get_recipe_from_API(['tomato,cheese'],['eggs'])
-meals=filter_data(recipies)
+meals=make_meals(recipies)
+sugestion=make_meal_propositions(meals)
+create_html(meals,sugestion)
 
-
-from jinja2 import Environment, FileSystemLoader
-env = Environment(loader=FileSystemLoader('templates'))
-template = env.get_template('test.html')
-output_from_parsed_template = template.render(items=meals)
-print(output_from_parsed_template)
-
-# to save the results
-with open("my_new_file.html", "w") as fh:
-    fh.write(output_from_parsed_template)
 
 
 
