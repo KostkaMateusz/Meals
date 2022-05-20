@@ -2,8 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from dataclasses import dataclass
-from html_menager import create_html
-from utils import make_meal_propositions
+from utils import make_meal_propositions,create_html, add_translation
 
 load_dotenv()
 
@@ -18,10 +17,8 @@ class Recipe:
     calories:float
 
 
-def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list=None):
-    if exclude_ingredients is None:
-        exclude_ingredients=[]
-        exclude_ingredients.append('plums')
+def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list):
+
     
     include_ingredients_str=",".join(include_ingredients)
     exclude_ingredients_str=",".join(exclude_ingredients)
@@ -38,9 +35,7 @@ def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list=None):
     return resp.json()
 
 
-
-
-def make_meals(recipies:list):
+def make_meals(recipies:list)->list[Recipe]:
     list_of_object=[]
     
     for recipie_info in recipies['results']:
@@ -63,15 +58,24 @@ def make_meals(recipies:list):
     return list_of_object
 
 
+def find_food(include:list,exclude:list=None):
+
+    if exclude is None:
+        exclude=[]
+        exclude.append('plums')
+
+    recipies=get_recipe_from_API(include,exclude)
+    meals=make_meals(recipies)
+
+    translated_meals=add_translation(meals)
+    sugestion=make_meal_propositions(translated_meals)
+
+    file_name="_".join(include)
+    
+    create_html(translated_meals,sugestion,file_name)
 
 
-recipies=get_recipe_from_API(['tomato,cheese'],['eggs'])
-meals=make_meals(recipies)
-sugestion=make_meal_propositions(meals)
-create_html(meals,sugestion)
-
-
-
+find_food(['tomato','cheese','meat'],['eggs'])
 
 
 
