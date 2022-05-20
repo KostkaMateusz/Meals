@@ -2,6 +2,9 @@
 import requests
 
 from dataclasses import dataclass
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 @dataclass
 class Recipe:
@@ -27,7 +30,7 @@ def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list=None):
     "fillIngredients":True,"addRecipeNutrition":True,
     "number":2,"sort":"min-missing-ingredients"}
 
-    headers = {"x-api-key": "2c66451ac84b4553a55639e96711eb74"}
+    headers = {"x-api-key": os.getenv('APIKEY')}
 
     resp = requests.get("https://api.spoonacular.com/recipes/complexSearch", params=payload, headers=headers)
 
@@ -60,7 +63,17 @@ def filter_data(recipies:list):
 
 recipies=get_recipe_from_API(['tomato,cheese'],['eggs'])
 meals=filter_data(recipies)
-print(meals)
+
+
+from jinja2 import Environment, FileSystemLoader
+env = Environment(loader=FileSystemLoader('templates'))
+template = env.get_template('test.html')
+output_from_parsed_template = template.render(items=meals)
+print(output_from_parsed_template)
+
+# to save the results
+with open("my_new_file.html", "w") as fh:
+    fh.write(output_from_parsed_template)
 
 
 
