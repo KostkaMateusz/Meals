@@ -1,4 +1,4 @@
-from urllib import response
+
 import requests
 
 from dataclasses import dataclass
@@ -29,12 +29,38 @@ def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list=None):
 
     headers = {"x-api-key": "2c66451ac84b4553a55639e96711eb74"}
 
-    response = requests.get("https://api.spoonacular.com/recipes/complexSearch", params=payload, headers=headers)
+    resp = requests.get("https://api.spoonacular.com/recipes/complexSearch", params=payload, headers=headers)
 
-    print(response.url)
+    return resp.json()
 
-    return response.json()
 
+
+
+def filter_data(recipies:list):
+    list_of_object=[]
+    
+    for recipie_info in recipies['results']:
+
+        name=recipie_info["title"]
+        picture=recipie_info["image"]
+        present_ingredients=[ingridients['name']  for ingridients in recipie_info["usedIngredients"]]
+        missing_ingredients=[missed_ingridients['name']  for missed_ingridients in recipie_info["missedIngredients"]]
+        
+        nutrients={nutriotion['name']:nutriotion['amount'] for  nutriotion in recipie_info["nutrition"]["nutrients"]  if  nutriotion['name'] in ['Carbohydrates', 'Protein', 'Calories']}
+        
+        carbs=nutrients['Carbohydrates']
+        proteins=nutrients['Protein']
+        calories=nutrients['Calories']
+
+        rec=Recipe(name,picture,present_ingredients,missing_ingredients,carbs,proteins,calories)
+      
+        list_of_object.append(rec)
+
+    return list_of_object
+
+recipies=get_recipe_from_API(['tomato,cheese'],['eggs'])
+meals=filter_data(recipies)
+print(meals)
 
 
 
