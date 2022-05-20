@@ -2,12 +2,13 @@ import os
 import requests
 from dotenv import load_dotenv
 from dataclasses import dataclass
-from utils import make_meal_propositions,create_html, add_translation
+from utils import make_meal_propositions,create_html, add_translation,create_file_name
 
 load_dotenv()
 
 @dataclass
 class Recipe:
+    __slots__ = ['name', 'picture', 'present_ingredients','missing_ingredients','carbs','proteins','calories']
     name:str
     picture:str
     present_ingredients:list[str]
@@ -26,7 +27,7 @@ def get_recipe_from_API(include_ingredients:list,exclude_ingredients:list):
     payload = {"includeIngredients": f"{include_ingredients_str}",
     "excludeIngredients":f"{exclude_ingredients_str}",
     "fillIngredients":True,"addRecipeNutrition":True,
-    "number":5,"sort":"min-missing-ingredients"}
+    "number":2,"sort":"min-missing-ingredients"}
 
     headers = {"x-api-key": os.getenv('APIKEY')}
 
@@ -70,7 +71,7 @@ def find_food(include:list,exclude:list=None):
     translated_meals=add_translation(meals)
     sugestion=make_meal_propositions(translated_meals)
 
-    file_name="_".join(include)
+    file_name=create_file_name(include)
     
     create_html(translated_meals,sugestion,file_name)
 

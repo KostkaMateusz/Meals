@@ -1,5 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 from pygoogletranslation import Translator
+import re
 
 def make_meal_propositions(meals)->dict:
     # minimal carbon porposition
@@ -35,3 +36,27 @@ def add_translation(meals):
         meal.missing_ingredients.append(f"pol({translated_missing_ingredients})")
     
     return meals
+
+
+
+expresion=re.compile('[a-zA-Z0-9_-]+')
+
+def create_file_name(names:list[str]):
+    checket_string=[]
+    for name in names:
+        matches=expresion.findall(name)
+
+        checket_string.append("".join(matches))
+
+    file_name="_".join(checket_string)
+    file_name=file_name.strip()
+    file_name=file_name.lower()
+    
+
+    return file_name
+
+
+create_file_name(['pomidro', 'majonezo_kięlęcki','kiełbasa'])
+
+
+
