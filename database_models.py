@@ -6,16 +6,19 @@ Base = declarative_base()
 
 engine = create_engine("sqlite:///./sql_app.db", echo=True, future=True)
 
-Base.metadata.create_all(engine)
 
-
-association_table = Table('association', Base.metadata,
-    Column('meal_id', ForeignKey('meals.id'), primary_key=True),
-    Column('present_ingredients_id', ForeignKey('present_ingredients.id'), primary_key=True)
-)
+class PresentIngredients(Base):
+    __tablename__ = 'present_ingredients'
+    
+    name=Column(String,primary_key=True)
+    
+    meal = relationship("Meals", back_populates="ingridients")
 
 class Meals(Base):
     __tablename__ = 'meals'
+    id = Column(Integer, primary_key=True)
+    present_ingred = Column(String, ForeignKey('present_ingredients.name'))
+
 
     name=Column(String)
     picture=Column(String)
@@ -23,43 +26,56 @@ class Meals(Base):
     proteins=Column(Float) 
     calories=Column(Float)
 
-    id = Column(Integer, primary_key=True)
-    ingridients = relationship("PresentIngredients",secondary=association_table,back_populates='meals')
+    ingridients = relationship("PresentIngredients", back_populates="meal")
+    
+    missing_Ingredients = relationship("MissingIngredients")
 
-
-class PresentIngredients(Base):
-    __tablename__ = 'present_ingredients'
-    id = Column(Integer, primary_key=True)
-    name=Column(String)
-    meals = relationship("Meals", secondary=association_table, back_populates='ingridients')
-
+    
 class MissingIngredients(Base):
     __tablename__ = 'missing_ingredients'
     id = Column(Integer, primary_key=True)
     name=Column(String)
-    meals = relationship("Meals", secondary=association_table, back_populates='ingridients')
-
-
-# with Session(engine) as session:
     
-#     meal=Meals(name="jajecznica",
-#     picture="www.google.com",
-#     carbs=21.34,
-#     proteins=69, 
-#     calories=26)
+    parent_id = Column(Integer, ForeignKey('meals.id'))
     
-#     mea2=Meals(name="jajecznica z boczkiem",
-#     picture="www.prypry.com",
-#     carbs=50.60,
-#     proteins=70.80, 
-#     calories=25.25)
+
+
+   
+
+Base.metadata.create_all(engine)
+
+with Session(engine) as session:
     
-#     pres_ing=PresentIngredients(name="pomidory")
+    ing=['jaja','boczek','salceson']
+    ing=",".join(ing)
+    pres=PresentIngredients(name=ing)
+    missing1=MissingIngredients(name='dupawolowa')
+    missing2=MissingIngredients(name='duparozowa')
+    
+    meal=Meals(name="jajecznica",
+    picture="www.google.com",
+    carbs=21.34,
+    proteins=69, 
+    calories=26)
+    meal.ingridients=pres
 
-#     meal.ingridients=[pres_ing]
-#     pres_ing.meals=[meal]
+    meal.missing_Ingredients=missing1
 
-#     session.add(meal)
-#     session.add(pres_ing)
+    meal2=Meals(name="jajecznica z boczkiem",
+    picture="www.prypry.com",
+    carbs=50.60,
+    proteins=70.80, 
+    calories=25.25)
+    meal2.ingridients=pres
+    meal2.missing_Ingredients=missing2    
+    
+    session.add(pres)
+    session.add(meal)
+    session.add(meal2)
+    session.commit()
+    
 
-#     session.commit()
+
+
+
+    
