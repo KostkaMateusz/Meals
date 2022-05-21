@@ -58,6 +58,28 @@ def make_meals(recipies:list)->list[Recipe]:
 
     return list_of_object
 
+from database_models import PresentIngredients,Meals,MissingIngredients,Session
+
+def check_database(include):
+    
+    with Session() as session:
+        # hash=sorted(include)
+        hash=include
+    
+        hash=",".join(hash)
+        ingredients=session.query(PresentIngredients).filter(PresentIngredients.name==hash).first()
+     
+        if ingredients==None:
+            return None
+        else:
+            meals=session.query(Meals).filter(Meals.ingridients==ingredients).all()
+            return meals
+        
+
+def convert_to_Recipe(include,meals:list[Meals])->list[Recipe]:
+    for meal in meals:
+        recipe=Recipe(name=meal.name,picture=meal.picture,present_ingredients=include,missing_ingredients=,carbs=meal.carbs,proteins=meal.proteins,calories=meal.calories)
+
 
 def find_food(include:list,exclude:list=None):
 
@@ -65,18 +87,26 @@ def find_food(include:list,exclude:list=None):
         exclude=[]
         exclude.append('plums')
 
-    recipies=get_recipe_from_API(include,exclude)
-    meals=make_meals(recipies)
-
-    translated_meals=add_translation(meals)
-    sugestion=make_meal_propositions(translated_meals)
-
-    file_name=create_file_name(include)
     
-    create_html(translated_meals,sugestion,file_name)
+
+        # if ghj is None:
+        #     #call Api
+        # else:
 
 
-find_food(['tomato','cheese','meat'],['eggs'])
+
+    # recipies=get_recipe_from_API(include,exclude)
+    # meals=make_meals(recipies)
+
+    # translated_meals=add_translation(meals)
+    # sugestion=make_meal_propositions(translated_meals)
+
+    # file_name=create_file_name(include)
+    
+    # create_html(translated_meals,sugestion,file_name)
+
+
+find_food(['jaja','boczek','salceson'],['eggs'])
 
 
 
