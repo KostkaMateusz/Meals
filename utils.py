@@ -1,9 +1,8 @@
 import re
 from jinja2 import Environment, FileSystemLoader
 from pygoogletranslation import Translator
-from data_model import MealDataClass
+from model import MealDataClass
 import threading
-from timer import timer
 
 
 def make_meal_propositions(meals: list[MealDataClass]) -> dict:
@@ -35,28 +34,29 @@ translator = Translator()
 def translate(translated_words: list, index: int, word: str) -> str:
     """Translate word to polish language"""
 
-    tr = translator.translate(word, dest="pl")
+    tr = translator.translate(word, src="en", dest="pl")
 
     translated_words[index] = tr.text
     return
 
 
 def translation_menager(words: list[str]):
+    # create spaces fo translated words
     translated_words = [""] * len(words)
-    threads = []
+    threads_list = []
 
     for index, word in enumerate(words):
         x = threading.Thread(target=translate, args=(translated_words, index, word))
         x.start()
-        threads.append(x)
+        threads_list.append(x)
 
-    for thread in threads:
+    # wait until all threads finish
+    for thread in threads_list:
         thread.join()
 
     return translated_words
 
 
-@timer
 def add_translation(meals: list[MealDataClass]) -> list[MealDataClass]:
     """Add translation to a Recipe datacalass to missing_ingredients field"""
     for meal in meals:

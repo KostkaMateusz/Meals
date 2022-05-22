@@ -1,5 +1,5 @@
 from database_models import PresentIngredientsDB, MealDB, MissingIngredientsDB
-from data_model import MealDataClass
+from model import MealDataClass
 from sqlalchemy.orm import Session
 
 
