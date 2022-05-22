@@ -30,31 +30,28 @@ def convert_MealDB_to_MealDataClass(meals: list[MealDB]) -> list[MealDataClass]:
     return list_of_meals
 
 
-def get_meals_from_DB(hash: str) -> list[MealDataClass]:
+def get_meals_from_DB(hash: str, session) -> list[MealDataClass]:
     """check database for meals with given hash and if finded convert database information to MealDataClass"""
-    with Session() as session:
 
-        meals = session.query(MealDB).filter(MealDB.hash == hash).all()
+    meals = session.query(MealDB).filter(MealDB.hash == hash).all()
 
-        return convert_MealDB_to_MealDataClass(meals)
+    return convert_MealDB_to_MealDataClass(meals)
 
 
-def save_meals_in_db(hash: str, meals: list[MealDataClass]) -> None:
+def save_meals_in_db(hash: str, meals: list[MealDataClass], session) -> None:
 
-    with Session() as session:
+    for meal in meals:
+        present_ingredients_list = [PresentIngredientsDB(name=name) for name in meal.present_ingredients]
+        missing_ingredients_list = [MissingIngredientsDB(name=name) for name in meal.missing_ingredients]
 
-        for meal in meals:
-            present_ingredients_list = [PresentIngredientsDB(name=name) for name in meal.present_ingredients]
-            missing_ingredients_list = [MissingIngredientsDB(name=name) for name in meal.missing_ingredients]
+        session.add_all(present_ingredients_list)
+        session.add_all(missing_ingredients_list)
 
-            session.add_all(present_ingredients_list)
-            session.add_all(missing_ingredients_list)
+        meal = MealDB(hash=hash, name=meal.name, picture=meal.picture, carbs=meal.carbs, proteins=meal.proteins, calories=meal.calories)
 
-            meal = MealDB(hash=hash, name=meal.name, picture=meal.picture, carbs=meal.carbs, proteins=meal.proteins, calories=meal.calories)
+        meal.ingridients = present_ingredients_list
+        meal.missing_Ingredients = missing_ingredients_list
 
-            meal.ingridients = present_ingredients_list
-            meal.missing_Ingredients = missing_ingredients_list
+        session.add(meal)
 
-            session.add(meal)
-
-        session.commit()
+    session.commit()
