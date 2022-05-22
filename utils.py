@@ -1,10 +1,10 @@
 import re
 from jinja2 import Environment, FileSystemLoader
 from pygoogletranslation import Translator
-from data_model import Recipe
+from data_model import MealDataClass
 
 
-def make_meal_propositions(meals: list[Recipe]) -> dict:
+def make_meal_propositions(meals: list[MealDataClass]) -> dict:
     """Take object with min carbon and object with max protein from list of Recipe objects"""
     # minimal carbon porposition
     min_carbon = min(meals, key=lambda x: x.carbs)
@@ -14,7 +14,7 @@ def make_meal_propositions(meals: list[Recipe]) -> dict:
     return {"min_carbon": min_carbon.name, "max_proteins": max_proteins.name}
 
 
-def create_html(meals_data: list[Recipe], sugestions: dict, file_name: str = "output_html") -> None:
+def create_html(meals_data: list[MealDataClass], sugestions: dict, file_name: str = "output_html") -> None:
     """Create a html file from templete if it does not exist or truncates the file if it exists"""
 
     # Load and render template with data
@@ -27,18 +27,16 @@ def create_html(meals_data: list[Recipe], sugestions: dict, file_name: str = "ou
         fh.write(output_from_parsed_template)
 
 
-translator = Translator()
-
-
 def translate(words: list[str]) -> str:
     """Translate list of words to polish language"""
+    translator = Translator()
     # bind string together to increase speed of translation
     string_to_translate = ",".join(words)
     tr = translator.translate(string_to_translate, dest="pl")
     return tr.text
 
 
-def add_translation(meals: list[Recipe]) -> list[Recipe]:
+def add_translation(meals: list[MealDataClass]) -> list[MealDataClass]:
     """Add translation to a Recipe datacalass to missing_ingredients field"""
     for meal in meals:
         translated_missing_ingredients = translate(meal.missing_ingredients)
@@ -47,11 +45,9 @@ def add_translation(meals: list[Recipe]) -> list[Recipe]:
     return meals
 
 
-expresion = re.compile("[a-zA-Z0-9_-]+")
-
-
 def create_file_name(names: list[str]) -> str:
     """Normalize file name from list of strings with given regex [a-zA-Z0-9_-]+"""
+    expresion = re.compile("[a-zA-Z0-9_-]+")
     checket_string = []
     for name in names:
         matches = expresion.findall(name)
