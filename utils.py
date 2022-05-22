@@ -5,7 +5,7 @@ from data_model import Recipe
 
 
 def make_meal_propositions(meals: list[Recipe]) -> dict:
-    """Take min carbon and max protein from list of Recipe objects"""
+    """Take object with min carbon and object with max protein from list of Recipe objects"""
     # minimal carbon porposition
     min_carbon = min(meals, key=lambda x: x.carbs)
     # max protein porposition
@@ -14,14 +14,15 @@ def make_meal_propositions(meals: list[Recipe]) -> dict:
     return {"min_carbon": min_carbon.name, "max_proteins": max_proteins.name}
 
 
-def create_html(data: list[Recipe], sugestion: dict, file_name: str = "output_html") -> None:
+def create_html(meals_data: list[Recipe], sugestions: dict, file_name: str = "output_html") -> None:
+    """Create a html file from templete if it does not exist or truncates the file if it exists"""
 
+    # Load and render template with data
     env = Environment(loader=FileSystemLoader("templates"))
     template = env.get_template("template.html")
-    output_from_parsed_template = template.render(items=data, sugestion=sugestion)
+    output_from_parsed_template = template.render(items=meals_data, sugestions=sugestions)
 
     # save the results
-
     with open(f"{file_name}.html", "w", encoding="utf-8") as fh:
         fh.write(output_from_parsed_template)
 
@@ -30,7 +31,7 @@ translator = Translator()
 
 
 def translate(words: list[str]) -> str:
-    """Basic driver of translator class"""
+    """Translate list of words to polish language"""
     # bind string together to increase speed of translation
     string_to_translate = ",".join(words)
     tr = translator.translate(string_to_translate, dest="pl")
@@ -50,6 +51,7 @@ expresion = re.compile("[a-zA-Z0-9_-]+")
 
 
 def create_file_name(names: list[str]) -> str:
+    """Normalize file name from list of strings with given regex [a-zA-Z0-9_-]+"""
     checket_string = []
     for name in names:
         matches = expresion.findall(name)
