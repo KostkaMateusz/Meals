@@ -2,7 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from data_model import make_list_of_meals
-from database_functions import check_database, save_meals_in_db
+from database_functions import get_meals_from_DB, save_meals_in_db, get_custom_hash
 from utils import make_meal_propositions, create_html, add_translation, create_file_name
 
 load_dotenv()
@@ -37,12 +37,14 @@ def find_food(include: list[str], exclude: list[str] = None) -> None:
         exclude = []
         exclude.append("plums")
 
-    meals = check_database(include, exclude)
+    hash = get_custom_hash(include, exclude)
+
+    meals = get_meals_from_DB(hash)
 
     if len(meals) == 0:
         recipies = get_recipe_from_API(include, exclude)
         meals = make_list_of_meals(recipies)
-        save_meals_in_db(include, exclude, meals)
+        save_meals_in_db(hash, meals)
 
     translated_meals = add_translation(meals)
 
