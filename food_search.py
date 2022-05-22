@@ -5,10 +5,12 @@ from database_models import Session
 from data_model import make_list_of_meals
 from database_functions import get_meals_from_DB, save_meals_in_db, get_custom_hash
 from utils import make_meal_propositions, create_html, add_translation, create_file_name
+from timer import timer
 
 load_dotenv()
 
 
+@timer
 def get_recipe_from_API(include_ingredients: list[str], exclude_ingredients: list[str]) -> list:
     """Call spooncular api with required ingredients and baned_ingredients"""
 
@@ -32,6 +34,7 @@ def get_recipe_from_API(include_ingredients: list[str], exclude_ingredients: lis
     return resp.json()
 
 
+@timer
 def find_food(include: list[str], exclude: list[str] = None) -> None:
 
     if exclude is None:
@@ -57,4 +60,4 @@ def find_food(include: list[str], exclude: list[str] = None) -> None:
     create_html(translated_meals, sugestion, file_name)
 
 
-find_food(["tomato", "cheese", "bread"], ["eggs"])
+find_food(["tomato", "cheese", "bread", "potato"], ["eggs"])

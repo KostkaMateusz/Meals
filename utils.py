@@ -2,6 +2,8 @@ import re
 from jinja2 import Environment, FileSystemLoader
 from pygoogletranslation import Translator
 from data_model import MealDataClass
+import threading
+from timer import timer
 
 
 def make_meal_propositions(meals: list[MealDataClass]) -> dict:
@@ -27,19 +29,38 @@ def create_html(meals_data: list[MealDataClass], sugestions: dict, file_name: st
         fh.write(output_from_parsed_template)
 
 
-def translate(words: list[str]) -> str:
-    """Translate list of words to polish language"""
-    translator = Translator()
-    # bind string together to increase speed of translation
-    string_to_translate = ",".join(words)
-    tr = translator.translate(string_to_translate, dest="pl")
-    return tr.text
+translator = Translator()
 
 
+def translate(translated_words: list, index: int, word: str) -> str:
+    """Translate word to polish language"""
+
+    tr = translator.translate(word, dest="pl")
+
+    translated_words[index] = tr.text
+    return
+
+
+def translation_menager(words: list[str]):
+    translated_words = [""] * len(words)
+    threads = []
+
+    for index, word in enumerate(words):
+        x = threading.Thread(target=translate, args=(translated_words, index, word))
+        x.start()
+        threads.append(x)
+
+    for thread in threads:
+        thread.join()
+
+    return translated_words
+
+
+@timer
 def add_translation(meals: list[MealDataClass]) -> list[MealDataClass]:
     """Add translation to a Recipe datacalass to missing_ingredients field"""
     for meal in meals:
-        translated_missing_ingredients = translate(meal.missing_ingredients)
+        translated_missing_ingredients = ",".join(translation_menager(meal.missing_ingredients))
         meal.missing_ingredients.append(f"PL({translated_missing_ingredients})")
 
     return meals
