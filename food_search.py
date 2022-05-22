@@ -68,4 +68,4 @@ def find_food(include: list[str], exclude: list[str] = None) -> None:
 
 
 if __name__ == "__main__":
-    find_food(["tomato", "cheese", "potato", "milk", "bread"], ["eggs"])
+    find_food(["tomato", "cheese", "potato"], ["eggs"])
