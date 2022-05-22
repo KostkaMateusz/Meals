@@ -35,8 +35,7 @@ def get_recipe_from_API(include_ingredients: list[str], exclude_ingredients: lis
 def find_food(include: list[str], exclude: list[str] = None) -> None:
 
     if exclude is None:
-        exclude = []
-        exclude.append("plums")
+        exclude = ["plums"]
 
     hash = get_custom_hash(include, exclude)
 

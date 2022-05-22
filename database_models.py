@@ -4,7 +4,7 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 Base = declarative_base()
 
-engine = create_engine("sqlite:///./sql_app.db", echo=True, future=True)
+engine = create_engine("sqlite:///./sql_app.db", echo=False, future=True, connect_args={"check_same_thread": False})
 
 
 class PresentIngredientsDB(Base):

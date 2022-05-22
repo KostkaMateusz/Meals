@@ -1,5 +1,6 @@
-from database_models import PresentIngredientsDB, MealDB, MissingIngredientsDB, Session
+from database_models import PresentIngredientsDB, MealDB, MissingIngredientsDB
 from data_model import MealDataClass
+from sqlalchemy.orm import Session
 
 
 def get_custom_hash(include: list[str], exclude: list[str]) -> str:
@@ -30,7 +31,7 @@ def convert_MealDB_to_MealDataClass(meals: list[MealDB]) -> list[MealDataClass]:
     return list_of_meals
 
 
-def get_meals_from_DB(hash: str, session) -> list[MealDataClass]:
+def get_meals_from_DB(hash: str, session: Session) -> list[MealDataClass]:
     """check database for meals with given hash and if finded convert database information to MealDataClass"""
 
     meals = session.query(MealDB).filter(MealDB.hash == hash).all()
@@ -38,9 +39,10 @@ def get_meals_from_DB(hash: str, session) -> list[MealDataClass]:
     return convert_MealDB_to_MealDataClass(meals)
 
 
-def save_meals_in_db(hash: str, meals: list[MealDataClass], session) -> None:
-
+def save_meals_in_db(hash: str, meals: list[MealDataClass], session: Session) -> None:
+    """Saves data from MealDataClass to a right table in DataBase"""
     for meal in meals:
+
         present_ingredients_list = [PresentIngredientsDB(name=name) for name in meal.present_ingredients]
         missing_ingredients_list = [MissingIngredientsDB(name=name) for name in meal.missing_ingredients]
 
