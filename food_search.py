@@ -27,6 +27,7 @@ def get_recipe_from_API(include_ingredients: list[str], exclude_ingredients: lis
     # get secret API key from env variable
     headers = {"x-api-key": os.getenv("APIKEY")}
 
+    # make a request to API complex search endpoint
     resp = requests.get("https://api.spoonacular.com/recipes/complexSearch", params=payload, headers=headers)
 
     return resp.json()
